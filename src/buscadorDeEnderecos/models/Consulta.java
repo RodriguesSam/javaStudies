@@ -9,6 +9,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Consulta {
@@ -67,7 +69,7 @@ public class Consulta {
         // Usuário escolhe se deseja consultar por CEP ou por endereco.
 
         int escolhaTipoDeConsulta = 0;
-        String [] data = new String[4];
+        List<String> atributos = new ArrayList<>();
         Scanner input = new Scanner(System.in);
 
         System.out.println("Selecione uma opção:");
@@ -92,22 +94,18 @@ public class Consulta {
 
             if (escolhaTipoDeConsulta == 1) {
                 System.out.println("Digite o CEP:");
-                data[0] = input.nextLine();
-                consultaPorCep(data);
+                atributos.add(input.nextLine());
                 break;
 
             } else if (escolhaTipoDeConsulta == 2) {
                 System.out.println("Digite a UF:");
-                data[1] = input.nextLine();
+                atributos.add(input.nextLine());
 
                 System.out.println("Digite a cidade:");
-                data[2] = input.nextLine();
+                atributos.add(input.nextLine());
 
                 System.out.println("Digite o logradouro:");
-                data[3] = input.nextLine();
-
-                consultaPorCep(data);
-
+                atributos.add(input.nextLine());
                 break;
 
             } else {
@@ -115,17 +113,21 @@ public class Consulta {
             }
         }
 
+        consultaPorCep(atributos);
     }
 
-    public void consultaPorCep(String[] cep) throws IOException, InterruptedException {
-        String linkConsulta;
+    public void consultaPorCep(List<String> partesDoEndereco) throws IOException, InterruptedException {
+        String linkConsulta = "https://viacep.com.br/ws/";
 
-        if (cep[0] == null){
-            linkConsulta = String.format("https://viacep.com.br/ws/%s/%s/%s/json/",cep[1],cep[2],cep[3]).replace(" ", "%20");
-        } else {
-            linkConsulta = "https://viacep.com.br/ws/" + cep[0] + "/json/";
+        for(String parte : partesDoEndereco) {
+            linkConsulta += parte + "/";
         }
+        linkConsulta += "json/";
+        System.out.println(linkConsulta);
+
+
         String jsonResponse = pegaJson(linkConsulta);
+        imprimirConsultaArray(jsonResponse);
     }
 
     public void consultaPorEndereco(String[] endereco){ }
@@ -142,9 +144,10 @@ public class Consulta {
         return response.body();
     }
 
-    public void imprimirConsultaArray(Object consulta) throws IOException {
+    public void imprimirConsultaArray(String consulta) throws IOException {
         FileWriter escrever = new FileWriter("Consulta.json");
-        escrever.write(gson.toJson(consulta));
+        EnderecoViaCEP endereco = gson.fromJson(consulta, EnderecoViaCEP.class);
+        escrever.write(String.valueOf(endereco));
         escrever.close();
     }
 }
