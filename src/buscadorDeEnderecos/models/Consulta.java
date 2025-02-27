@@ -111,9 +111,9 @@ public class Consulta {
             } else {
                 System.out.println("Selecione uma opção válida!");
             }
+            consultaPorCep(atributos);
         }
 
-        consultaPorCep(atributos);
     }
 
     public void consultaPorCep(List<String> partesDoEndereco) throws IOException, InterruptedException {
@@ -123,12 +123,35 @@ public class Consulta {
             linkConsulta += parte + "/";
         }
         linkConsulta += "json/";
+        linkConsulta = linkConsulta.replace(" ", "%20");
         System.out.println(linkConsulta);
 
 
-        String jsonResponse = pegaJson(linkConsulta);
-        imprimirConsultaArray(jsonResponse);
+        String httpResponse = pegaJson(linkConsulta);
+        criaObjEndereco(httpResponse);
+//        imprimirConsulta(httpResponse);
     }
+
+    public List<EnderecoViaCEP> criaObjEndereco(String httpResponse) {
+        List<EnderecoViaCEP> listaDeEnderecos = new ArrayList<>();
+
+        if(httpResponse.startsWith("[")) {
+            EnderecoViaCEP[] arrayEnderecosJson = gson.fromJson(httpResponse, EnderecoViaCEP[].class);
+            for(EnderecoViaCEP enderecoJson : arrayEnderecosJson){
+                listaDeEnderecos.add(enderecoJson);
+                System.out.println(enderecoJson);
+            }
+        } else {
+            EnderecoViaCEP enderecoJson = gson.fromJson(httpResponse, EnderecoViaCEP.class);
+            listaDeEnderecos.add(enderecoJson);
+        }
+        System.out.println(listaDeEnderecos);
+
+
+
+        return listaDeEnderecos;
+    }
+
 
     public void consultaPorEndereco(String[] endereco){ }
 
@@ -144,7 +167,7 @@ public class Consulta {
         return response.body();
     }
 
-    public void imprimirConsultaArray(String consulta) throws IOException {
+    public void imprimirConsulta(String consulta) throws IOException {
         FileWriter escrever = new FileWriter("Consulta.json");
         EnderecoViaCEP endereco = gson.fromJson(consulta, EnderecoViaCEP.class);
         escrever.write(String.valueOf(endereco));
