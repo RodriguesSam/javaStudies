@@ -18,62 +18,17 @@ public class Consulta {
     private Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
-
-//    public String consultarViaCEP() throws IOException, InterruptedException {
-//        String link = "";
-//        int escolha = escolhaUsuario();
-//
-//        if(escolha == 1) {
-//            link = "https://viacep.com.br/ws/" + cep + "/json/";
-//        } else {
-//            link = String.format("https://viacep.com.br/ws/%s/%s/%s/json/",uf,localidade,logradouro).replace(" ","%20");
-//        }
-//
-//        //requisição http:
-//        HttpClient client = HttpClient.newHttpClient();
-//        HttpRequest request = HttpRequest.newBuilder()
-//                .uri(URI.create(link))
-//                .build();
-//        HttpResponse<String> response = client
-//                .send(request, HttpResponse.BodyHandlers.ofString());
-//
-//        String jsonResposta = response.body();
-//
-//        //Caso o retorno seja uma lista de endereços, a referência criada deve ser um array
-//        if(jsonResposta.startsWith("[")) {
-//            EnderecoViaCEP[] respostaCEPArray = gson.fromJson(jsonResposta, EnderecoViaCEP[].class);
-//
-//            if (respostaCEPArray.length > 0) {
-//                for(int i = 0; i < respostaCEPArray.length; i++){
-////                    popularVariaveis(respostaCEPArray[]);
-//                    imprimirConsultaArray(respostaCEPArray);
-//                }
-//                FileWriter escrever = new FileWriter("Consulta.txt");
-//                escrever.write(Arrays.toString(respostaCEPArray));
-//                escrever.close();
-//
-//            } else {
-//                System.out.println("Nenhum endereço encontrado!");
-//            }
-//
-//        } else {
-//            EnderecoViaCEP respostaCEP = gson.fromJson(response.body(), EnderecoViaCEP.class);
-//            popularVariaveis(respostaCEP);
-//            imprimirConsultaArray(respostaCEP);
-//        }
-//
-//        return this.toString();
-//    }
+    
 
     public void tipoDePesquisa() throws IOException, InterruptedException {
         // Usuário escolhe se deseja consultar por CEP ou por endereco.
         List<String> atributos = new ArrayList<>();
-        int escolhaTipoDeConsulta = 0;
+        int escolhaTipoDeConsulta;
         Scanner input = new Scanner(System.in);
 
         System.out.println("Selecione uma opção:");
 
-        while(escolhaTipoDeConsulta != 3) {
+        do {
             System.out.printf("""
                     
                     1. Consulta por CEP
@@ -110,9 +65,9 @@ public class Consulta {
                 System.out.println("Selecione uma opção válida!");
             }
             consultaPorCep(atributos);
-            atributos.clear();
+            //resolver questão de limpar a lista após primeiro processamento!
 
-        }
+        } while (escolhaTipoDeConsulta != 3);
 
     }
 
@@ -124,7 +79,7 @@ public class Consulta {
         }
         linkConsulta += "json/";
         linkConsulta = linkConsulta.replace(" ", "%20");
-        System.out.println(linkConsulta);
+        //System.out.println(linkConsulta);
 
 
         String httpResponse = pegaJson(linkConsulta);
@@ -151,7 +106,7 @@ public class Consulta {
             EnderecoViaCEP enderecoJson = gson.fromJson(httpResponse, EnderecoViaCEP.class);
             listaDeEnderecos.add(enderecoJson);
         }
-        System.out.println(listaDeEnderecos);
+        //System.out.println(listaDeEnderecos);
 
 
 
