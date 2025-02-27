@@ -67,15 +67,13 @@ public class Consulta {
 
     public void tipoDePesquisa() throws IOException, InterruptedException {
         // Usuário escolhe se deseja consultar por CEP ou por endereco.
-
-        int escolhaTipoDeConsulta = 0;
         List<String> atributos = new ArrayList<>();
+        int escolhaTipoDeConsulta = 0;
         Scanner input = new Scanner(System.in);
 
         System.out.println("Selecione uma opção:");
 
         while(escolhaTipoDeConsulta != 3) {
-
             System.out.printf("""
                     
                     1. Consulta por CEP
@@ -95,7 +93,7 @@ public class Consulta {
             if (escolhaTipoDeConsulta == 1) {
                 System.out.println("Digite o CEP:");
                 atributos.add(input.nextLine());
-                break;
+
 
             } else if (escolhaTipoDeConsulta == 2) {
                 System.out.println("Digite a UF:");
@@ -106,12 +104,14 @@ public class Consulta {
 
                 System.out.println("Digite o logradouro:");
                 atributos.add(input.nextLine());
-                break;
+
 
             } else {
                 System.out.println("Selecione uma opção válida!");
             }
             consultaPorCep(atributos);
+            atributos.clear();
+
         }
 
     }
@@ -137,10 +137,16 @@ public class Consulta {
 
         if(httpResponse.startsWith("[")) {
             EnderecoViaCEP[] arrayEnderecosJson = gson.fromJson(httpResponse, EnderecoViaCEP[].class);
-            for(EnderecoViaCEP enderecoJson : arrayEnderecosJson){
-                listaDeEnderecos.add(enderecoJson);
-                System.out.println(enderecoJson);
+
+            if(arrayEnderecosJson.length > 0) {
+                for(EnderecoViaCEP enderecoJson : arrayEnderecosJson){
+                    listaDeEnderecos.add(enderecoJson);
+                    System.out.println(enderecoJson);
+                }
+            } else {
+                System.out.println("A pesquisa não retornou resultados..");
             }
+
         } else {
             EnderecoViaCEP enderecoJson = gson.fromJson(httpResponse, EnderecoViaCEP.class);
             listaDeEnderecos.add(enderecoJson);
